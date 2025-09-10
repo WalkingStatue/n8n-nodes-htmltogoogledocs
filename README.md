@@ -64,6 +64,46 @@ The node will create a new Google Doc with your HTML content converted to Google
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
 * [Google Drive API documentation](https://developers.google.com/drive/api)
 
+## Release Process
+
+This project uses semantic-release to automate the release process. All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+### Commit Message Format
+
+Each commit message consists of a **header**, a **body** and a **footer**. The header has a special format that includes a **type**, a **scope** and a **subject**:
+
+```
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+```
+
+The **header** is mandatory and the **scope** of the header is optional.
+
+#### Types
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `perf`: A code change that improves performance
+- `revert`: Reverts a previous commit
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `test`: Adding missing tests or correcting existing tests
+- `build`: Changes that affect the build system or external dependencies
+- `ci`: Changes to our CI configuration files and scripts
+- `chore`: Other changes that don't modify src or test files
+
+### Release Automation
+
+Releases are automatically created when changes are merged to the `master` branch. The semantic-release tool analyzes commits and determines the next version number based on the commit types:
+
+- `feat` commits will trigger a minor version bump
+- `fix` commits will trigger a patch version bump
+- `BREAKING CHANGE` in the commit body will trigger a major version bump
+
 ## License
 
 [MIT](https://github.com/WalkingStatue/n8n-nodes-htmltogoogledocs/blob/master/LICENSE.md)
