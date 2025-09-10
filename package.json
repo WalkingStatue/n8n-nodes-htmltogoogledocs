@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-htmltogoogledocs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An n8n node for uploading HTML content to Google Docs (HTML to Google Docs)",
   "keywords": [
     "n8n-community-node-package",
