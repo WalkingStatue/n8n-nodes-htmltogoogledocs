@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+  <!-- Background with Google Docs blue -->
+  <rect x="4" y="4" width="24" height="24" rx="3" fill="#4285F4"/>
+  
+  <!-- Document lines representing HTML content -->
+  <path d="M9 9H23V11H9V9Z" fill="white"/>
+  <path d="M9 13H19V15H9V13Z" fill="white"/>
+  <path d="M9 17H21V19H9V17Z" fill="white"/>
+  <path d="M9 21H17V23H9V21Z" fill="white"/>
+  
+  <!-- Conversion arrow -->
+  <path d="M24 15L28 19L24 23" stroke="#34A853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- HTML brackets -->
+  <text x="6" y="26" font-family="Arial, sans-serif" font-size="8" fill="white"></></text>
+</svg>
