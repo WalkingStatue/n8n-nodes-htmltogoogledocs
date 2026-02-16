@@ -14,8 +14,8 @@ class HtmlToGoogleDocs {
             defaults: {
                 name: 'HTML to Google Docs',
             },
-            inputs: ["main"],
-            outputs: ["main"],
+            inputs: ['main'],
+            outputs: ['main'],
             credentials: [
                 {
                     name: 'googleDriveOAuth2Api',
@@ -48,17 +48,16 @@ class HtmlToGoogleDocs {
     }
     async execute() {
         const items = this.getInputData();
-        const returnData = [];
         const credentials = await this.getCredentials('googleDriveOAuth2Api');
         if (!credentials) {
             throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Failed to retrieve Google Drive credentials');
         }
-        for (let i = 0; i < items.length; i++) {
+        const promises = items.map(async (item, i) => {
             try {
                 const documentName = this.getNodeParameter('documentName', i);
                 let htmlContent = this.getNodeParameter('htmlContent', i);
-                if (!htmlContent && items[i].json.html) {
-                    htmlContent = items[i].json.html;
+                if (!htmlContent && item.json.html) {
+                    htmlContent = item.json.html;
                 }
                 const boundary = 'foo_bar_baz';
                 const metadata = {
@@ -84,28 +83,28 @@ class HtmlToGoogleDocs {
                     },
                     body
                 });
-                returnData.push({
+                return {
                     json: response,
                     pairedItem: {
                         item: i,
                     },
-                });
+                };
             }
             catch (error) {
                 if (this.continueOnFail()) {
-                    returnData.push({
+                    return {
                         json: {
                             error: error.message,
                         },
                         pairedItem: {
                             item: i,
                         },
-                    });
-                    continue;
+                    };
                 }
                 throw error;
             }
-        }
+        });
+        const returnData = await Promise.all(promises);
         return [returnData];
     }
 }

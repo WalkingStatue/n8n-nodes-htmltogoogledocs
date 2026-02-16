@@ -3,7 +3,6 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeConnectionType,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -18,8 +17,8 @@ export class HtmlToGoogleDocs implements INodeType {
 		defaults: {
 			name: 'HTML to Google Docs',
 		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		credentials: [
 			{
 				name: 'googleDriveOAuth2Api',
@@ -52,7 +51,6 @@ export class HtmlToGoogleDocs implements INodeType {
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
-		const returnData: INodeExecutionData[] = [];
 
 		const credentials = await this.getCredentials('googleDriveOAuth2Api');
 		
@@ -61,14 +59,15 @@ export class HtmlToGoogleDocs implements INodeType {
 			throw new NodeOperationError(this.getNode(), 'Failed to retrieve Google Drive credentials');
 		}
 		
-		for (let i = 0; i < items.length; i++) {
+		// Process items in parallel to improve performance
+		const promises = items.map(async (item, i) => {
 			try {
 				const documentName = this.getNodeParameter('documentName', i) as string;
 				let htmlContent = this.getNodeParameter('htmlContent', i) as string;
 				
 				// If HTML content is empty, try to get it from the input item
-				if (!htmlContent && items[i].json.html) {
-					htmlContent = items[i].json.html as string;
+				if (!htmlContent && item.json.html) {
+					htmlContent = item.json.html as string;
 				}
 				
 				// Create multipart body
@@ -100,27 +99,28 @@ export class HtmlToGoogleDocs implements INodeType {
 					body
 				});
 
-				returnData.push({
+				return {
 					json: response,
 					pairedItem: {
 						item: i,
 					},
-				});
+				};
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({
+					return {
 						json: {
 							error: error.message,
 						},
 						pairedItem: {
 							item: i,
 						},
-					});
-					continue;
+					};
 				}
 				throw error;
 			}
-		}
+		});
+
+		const returnData = await Promise.all(promises);
 
 		return [returnData];
 	}
