@@ -3,7 +3,7 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeConnectionType,
+	NodeConnectionTypes,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -18,8 +18,8 @@ export class HtmlToGoogleDocs implements INodeType {
 		defaults: {
 			name: 'HTML to Google Docs',
 		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'googleDriveOAuth2Api',
@@ -42,7 +42,7 @@ export class HtmlToGoogleDocs implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: '<h1>My Document</h1>',
-				description: 'HTML content to upload to Google Docs',
+				description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
 				typeOptions: {
 					rows: 6,
 				},
