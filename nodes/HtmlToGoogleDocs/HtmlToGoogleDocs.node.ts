@@ -7,6 +7,9 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
+// @ts-ignore
+const crypto = require('crypto');
+
 export class HtmlToGoogleDocs implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'HTML to Google Docs',
@@ -72,7 +75,8 @@ export class HtmlToGoogleDocs implements INodeType {
 				}
 				
 				// Create multipart body
-				const boundary = 'foo_bar_baz';
+				// Use a random boundary to prevent injection attacks if the content contains the boundary string
+				const boundary = crypto.randomBytes(16).toString('hex');
 				const metadata = {
 					name: documentName,
 					mimeType: 'application/vnd.google-apps.document'
