@@ -70,6 +70,13 @@ export class HtmlToGoogleDocs implements INodeType {
 				if (!htmlContent && items[i].json.html) {
 					htmlContent = items[i].json.html as string;
 				}
+
+				if (!htmlContent) {
+					throw new NodeOperationError(this.getNode(), 'No HTML content found', {
+						description: 'Please specify the "HTML Content" parameter or ensure the input item has an "html" property.',
+						itemIndex: i,
+					});
+				}
 				
 				// Create multipart body
 				const boundary = 'foo_bar_baz';
