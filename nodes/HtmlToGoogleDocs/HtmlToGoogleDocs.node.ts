@@ -1,9 +1,10 @@
+import * as crypto from 'crypto';
 import {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeConnectionTypes,
+	NodeConnectionType,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -18,8 +19,8 @@ export class HtmlToGoogleDocs implements INodeType {
 		defaults: {
 			name: 'HTML to Google Docs',
 		},
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: [NodeConnectionType.Main],
+		outputs: [NodeConnectionType.Main],
 		credentials: [
 			{
 				name: 'googleDriveOAuth2Api',
@@ -72,7 +73,7 @@ export class HtmlToGoogleDocs implements INodeType {
 				}
 				
 				// Create multipart body
-				const boundary = 'foo_bar_baz';
+				const boundary = crypto.randomBytes(16).toString('hex');
 				const metadata = {
 					name: documentName,
 					mimeType: 'application/vnd.google-apps.document'
