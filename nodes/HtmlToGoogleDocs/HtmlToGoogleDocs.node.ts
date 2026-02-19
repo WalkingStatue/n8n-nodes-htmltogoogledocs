@@ -3,7 +3,7 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeConnectionTypes,
+	NodeConnectionType,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -18,8 +18,8 @@ export class HtmlToGoogleDocs implements INodeType {
 		defaults: {
 			name: 'HTML to Google Docs',
 		},
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: [NodeConnectionType.Main],
+		outputs: [NodeConnectionType.Main],
 		credentials: [
 			{
 				name: 'googleDriveOAuth2Api',
@@ -42,7 +42,8 @@ export class HtmlToGoogleDocs implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: '<h1>My Document</h1>',
-				description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
+				description:
+					'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
 				typeOptions: {
 					rows: 6,
 				},
@@ -55,29 +56,30 @@ export class HtmlToGoogleDocs implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		const credentials = await this.getCredentials('googleDriveOAuth2Api');
-		
+
 		// Use the credentials to ensure they're read
 		if (!credentials) {
 			throw new NodeOperationError(this.getNode(), 'Failed to retrieve Google Drive credentials');
 		}
-		
-		for (let i = 0; i < items.length; i++) {
+
+		// Use Promise.all to process items in parallel for better performance
+		const promises = items.map(async (item, i) => {
 			try {
 				const documentName = this.getNodeParameter('documentName', i) as string;
 				let htmlContent = this.getNodeParameter('htmlContent', i) as string;
-				
+
 				// If HTML content is empty, try to get it from the input item
 				if (!htmlContent && items[i].json.html) {
 					htmlContent = items[i].json.html as string;
 				}
-				
+
 				// Create multipart body
 				const boundary = 'foo_bar_baz';
 				const metadata = {
 					name: documentName,
-					mimeType: 'application/vnd.google-apps.document'
+					mimeType: 'application/vnd.google-apps.document',
 				};
-				
+
 				const body = [
 					`--${boundary}`,
 					'Content-Type: application/json; charset=UTF-8',
@@ -87,40 +89,46 @@ export class HtmlToGoogleDocs implements INodeType {
 					'Content-Type: text/html; charset=UTF-8',
 					'',
 					htmlContent,
-					`--${boundary}--`
+					`--${boundary}--`,
 				].join('\n');
 
 				// Make the API request with proper OAuth2 authentication
-				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'googleDriveOAuth2Api', {
-					method: 'POST',
-					url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-					headers: {
-						'Content-Type': `multipart/related; boundary=${boundary}`
+				const response = await this.helpers.httpRequestWithAuthentication.call(
+					this,
+					'googleDriveOAuth2Api',
+					{
+						method: 'POST',
+						url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+						headers: {
+							'Content-Type': `multipart/related; boundary=${boundary}`,
+						},
+						body,
 					},
-					body
-				});
+				);
 
-				returnData.push({
+				return {
 					json: response,
 					pairedItem: {
 						item: i,
 					},
-				});
+				};
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({
+					return {
 						json: {
 							error: error.message,
 						},
 						pairedItem: {
 							item: i,
 						},
-					});
-					continue;
+					};
 				}
 				throw error;
 			}
-		}
+		});
+
+		const results = await Promise.all(promises);
+		returnData.push(...results);
 
 		return [returnData];
 	}
