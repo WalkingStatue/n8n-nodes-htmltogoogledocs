@@ -3,7 +3,7 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeConnectionTypes,
+	NodeConnectionType,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -14,12 +14,13 @@ export class HtmlToGoogleDocs implements INodeType {
 		icon: 'file:googledocs.svg',
 		group: ['output'],
 		version: 1,
+		subtitle: '={{$parameter["documentName"]}}',
 		description: 'Upload HTML content to Google Docs',
 		defaults: {
 			name: 'HTML to Google Docs',
 		},
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: [NodeConnectionType.Main],
+		outputs: [NodeConnectionType.Main],
 		credentials: [
 			{
 				name: 'googleDriveOAuth2Api',
