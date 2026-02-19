@@ -10,6 +10,7 @@ class HtmlToGoogleDocs {
             icon: 'file:googledocs.svg',
             group: ['output'],
             version: 1,
+            subtitle: '={{$parameter["documentName"]}}',
             description: 'Upload HTML content to Google Docs',
             defaults: {
                 name: 'HTML to Google Docs',
@@ -38,7 +39,7 @@ class HtmlToGoogleDocs {
                     type: 'string',
                     default: '',
                     placeholder: '<h1>My Document</h1>',
-                    description: 'HTML content to upload to Google Docs',
+                    description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
                     typeOptions: {
                         rows: 6,
                     },
