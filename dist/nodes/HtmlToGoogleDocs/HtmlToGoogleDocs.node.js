@@ -38,7 +38,7 @@ class HtmlToGoogleDocs {
                     type: 'string',
                     default: '',
                     placeholder: '<h1>My Document</h1>',
-                    description: 'HTML content to upload to Google Docs',
+                    description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
                     typeOptions: {
                         rows: 6,
                     },
@@ -48,12 +48,11 @@ class HtmlToGoogleDocs {
     }
     async execute() {
         const items = this.getInputData();
-        const returnData = [];
         const credentials = await this.getCredentials('googleDriveOAuth2Api');
         if (!credentials) {
             throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Failed to retrieve Google Drive credentials');
         }
-        for (let i = 0; i < items.length; i++) {
+        const promises = items.map(async (item, i) => {
             try {
                 const documentName = this.getNodeParameter('documentName', i);
                 let htmlContent = this.getNodeParameter('htmlContent', i);
@@ -63,7 +62,7 @@ class HtmlToGoogleDocs {
                 const boundary = 'foo_bar_baz';
                 const metadata = {
                     name: documentName,
-                    mimeType: 'application/vnd.google-apps.document'
+                    mimeType: 'application/vnd.google-apps.document',
                 };
                 const body = [
                     `--${boundary}`,
@@ -74,38 +73,38 @@ class HtmlToGoogleDocs {
                     'Content-Type: text/html; charset=UTF-8',
                     '',
                     htmlContent,
-                    `--${boundary}--`
+                    `--${boundary}--`,
                 ].join('\n');
                 const response = await this.helpers.httpRequestWithAuthentication.call(this, 'googleDriveOAuth2Api', {
                     method: 'POST',
                     url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
                     headers: {
-                        'Content-Type': `multipart/related; boundary=${boundary}`
+                        'Content-Type': `multipart/related; boundary=${boundary}`,
                     },
-                    body
+                    body,
                 });
-                returnData.push({
+                return {
                     json: response,
                     pairedItem: {
                         item: i,
                     },
-                });
+                };
             }
             catch (error) {
                 if (this.continueOnFail()) {
-                    returnData.push({
+                    return {
                         json: {
                             error: error.message,
                         },
                         pairedItem: {
                             item: i,
                         },
-                    });
-                    continue;
+                    };
                 }
                 throw error;
             }
-        }
+        });
+        const returnData = await Promise.all(promises);
         return [returnData];
     }
 }
