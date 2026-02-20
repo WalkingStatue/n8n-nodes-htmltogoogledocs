@@ -10,12 +10,13 @@ class HtmlToGoogleDocs {
             icon: 'file:googledocs.svg',
             group: ['output'],
             version: 1,
+            subtitle: '={{$parameter["documentName"]}}',
             description: 'Upload HTML content to Google Docs',
             defaults: {
                 name: 'HTML to Google Docs',
             },
-            inputs: ["main"],
-            outputs: ["main"],
+            inputs: [n8n_workflow_1.NodeConnectionTypes.Main],
+            outputs: [n8n_workflow_1.NodeConnectionTypes.Main],
             credentials: [
                 {
                     name: 'googleDriveOAuth2Api',
@@ -38,7 +39,7 @@ class HtmlToGoogleDocs {
                     type: 'string',
                     default: '',
                     placeholder: '<h1>My Document</h1>',
-                    description: 'HTML content to upload to Google Docs',
+                    description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
                     typeOptions: {
                         rows: 6,
                     },
@@ -63,7 +64,7 @@ class HtmlToGoogleDocs {
                 const boundary = 'foo_bar_baz';
                 const metadata = {
                     name: documentName,
-                    mimeType: 'application/vnd.google-apps.document'
+                    mimeType: 'application/vnd.google-apps.document',
                 };
                 const body = [
                     `--${boundary}`,
@@ -74,15 +75,15 @@ class HtmlToGoogleDocs {
                     'Content-Type: text/html; charset=UTF-8',
                     '',
                     htmlContent,
-                    `--${boundary}--`
+                    `--${boundary}--`,
                 ].join('\n');
                 const response = await this.helpers.httpRequestWithAuthentication.call(this, 'googleDriveOAuth2Api', {
                     method: 'POST',
                     url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
                     headers: {
-                        'Content-Type': `multipart/related; boundary=${boundary}`
+                        'Content-Type': `multipart/related; boundary=${boundary}`,
                     },
-                    body
+                    body,
                 });
                 returnData.push({
                     json: response,
