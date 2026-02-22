@@ -6,6 +6,7 @@ import {
 	NodeConnectionTypes,
 	NodeOperationError,
 } from 'n8n-workflow';
+import * as crypto from 'crypto';
 
 export class HtmlToGoogleDocs implements INodeType {
 	description: INodeTypeDescription = {
@@ -72,7 +73,7 @@ export class HtmlToGoogleDocs implements INodeType {
 				}
 				
 				// Create multipart body
-				const boundary = 'foo_bar_baz';
+				const boundary = crypto.randomBytes(16).toString('hex');
 				const metadata = {
 					name: documentName,
 					mimeType: 'application/vnd.google-apps.document'
