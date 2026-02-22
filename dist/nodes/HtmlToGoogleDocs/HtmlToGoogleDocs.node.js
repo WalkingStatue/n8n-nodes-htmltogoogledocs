@@ -10,12 +10,13 @@ class HtmlToGoogleDocs {
             icon: 'file:googledocs.svg',
             group: ['output'],
             version: 1,
+            subtitle: '={{$parameter["documentName"]}}',
             description: 'Upload HTML content to Google Docs',
             defaults: {
                 name: 'HTML to Google Docs',
             },
-            inputs: ["main"],
-            outputs: ["main"],
+            inputs: [n8n_workflow_1.NodeConnectionTypes.Main],
+            outputs: [n8n_workflow_1.NodeConnectionTypes.Main],
             credentials: [
                 {
                     name: 'googleDriveOAuth2Api',
@@ -38,7 +39,7 @@ class HtmlToGoogleDocs {
                     type: 'string',
                     default: '',
                     placeholder: '<h1>My Document</h1>',
-                    description: 'HTML content to upload to Google Docs',
+                    description: 'The HTML content to upload. If not specified, the node will try to read the "html" property from the input item.',
                     typeOptions: {
                         rows: 6,
                     },
